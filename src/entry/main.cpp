@@ -1,4 +1,5 @@
 #include "../headers/gui.h"
+#include "../headers/keyhook.h"
 
 #include <thread>
 
@@ -7,10 +8,13 @@ int __stdcall wWinMain(
 	HINSTANCE previousInstance,
 	PWSTR arguments,
 	int commandShow) {
-	// create gui
+
 	gui::CreateHWindow();
 	gui::CreateDevice();
 	gui::CreateImGui();
+
+	keyhook::RegisterKeyhook();
+	keyhook::StartKeyhook();
 
 	while (gui::isRunning) {
 
@@ -21,7 +25,8 @@ int __stdcall wWinMain(
 		std::this_thread::sleep_for(std::chrono::milliseconds(5));
 	}
 
-	// destroy gui
+	keyhook::RemoveKeyhook();
+
 	gui::DestroyImGui();
 	gui::DestroyDevice();
 	gui::DestroyHWindow();

@@ -19,7 +19,19 @@ void gui::Render() noexcept {
 		ImGuiWindowFlags_NoMove
 	);
 
-	ImGui::Button("idi nahui pidaras");
+	int sliderValueInt = 50;
+	bool checkbox = true;
+	ImGui::Text("Value: %d", sliderValueInt); 
+	ImGui::SameLine();
+	if (ImGui::SliderInt("", &sliderValueInt, 0, 100)) {
+		
+	}
+	ImGui::Checkbox("Checkbox", &checkbox);
+	ImGui::Text("Press 'INSERT' to hide and bring up the menu.");
+	ImGui::Text("");
+	ImGui::Text("");
+	ImGui::Text("adrian is a big fat bitch");
+	ImGui::Text("and he is");
 
 	ImGui::End();
 }

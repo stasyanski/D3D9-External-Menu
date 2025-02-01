@@ -45,12 +45,6 @@ long __stdcall WindowProcess(
 				gui::ResetDevice();
 			}
 		} return 0;
-		case WM_KEYDOWN: {
-			if (wideParameter == VK_INSERT) {
-				gui::ToggleVisibility();
-			}
-			break;
-		} return 0;
 		// disable ALT to open / switch focus to menu using only the lower 4 bits 11111111 1111000 (within the window)
 		case WM_SYSCOMMAND: {
 			if ((wideParameter & 0xfff0) == SC_KEYMENU) { // sckeymenu is usually alt in most contexts
@@ -266,20 +260,14 @@ void gui::EndRender() noexcept {
 }
 
 void gui::ToggleVisibility() noexcept {
-
-	// Get the current extended window style
 	LONG style = GetWindowLong(gui::window, GWL_EXSTYLE);
-
 	if (!gui::isVisible) {
-		// Make the window fully transparent (use LWA_ALPHA instead of LWA_COLORKEY)
+		// make the window fully transparent (use LWA_ALPHA instead of LWA_COLORKEY) is very important
 		SetLayeredWindowAttributes(gui::window, 0, 0, LWA_ALPHA); // Alpha set to 0 (fully transparent)
 	}
 	else {
-		// Show the window (set it back to normal)
-		SetLayeredWindowAttributes(gui::window, 0, 255, LWA_ALPHA); // Restore visibility with alpha set to 255 (fully opaque)
+		SetLayeredWindowAttributes(gui::window, 0, 255, LWA_ALPHA);
 	}
-
-	// Toggle the visibility flag
 	gui::isVisible = !gui::isVisible;
 }
 
