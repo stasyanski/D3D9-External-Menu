@@ -1,15 +1,13 @@
 #pragma once
 #include <d3d9.h>
 
-namespace gui
-{
-	// constant window size
-	constexpr int WIDTH = 500;
-	constexpr int HEIGHT = 300;
-
+namespace gui {
 	// when this changes, exit threads
 	// and close menu :)
 	inline bool isRunning = true;
+
+	// control menu visibility (and click through) with bool
+	inline bool isVisible = true;
 
 	// winapi window vars
 	inline HWND window = nullptr;
@@ -40,6 +38,6 @@ namespace gui
 	void EndRender() noexcept;
 	void Render() noexcept;
 
-	//handle focus change
-	void ListenForWindowFocus() noexcept;
+	//toggle visibility with inline bool ln10
+	void ToggleVisibility() noexcept;
 }

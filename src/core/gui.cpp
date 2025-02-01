@@ -1,5 +1,7 @@
 #include <windows.h>
 #include <psapi.h>
+#include <cstdio>  // For sprintf_s
+
 
 #include "../headers/gui.h"
 #include "../headers/constants.h"
@@ -31,65 +33,67 @@ long __stdcall WindowProcess(
 	// some manual handling required depending on the message, example WM_KEYDOWN or WM_SIZE (within the window)
 	switch (message) {
 		// wm_size called upon window resizing
-	case WM_SIZE: {
-		// safety checks to see if device is initialised and available
-		// checks if the additional wide param window minimised is not true
-		if (gui::device && wideParameter != SIZE_MINIMIZED) {
-			// longParameter contains dimensions which are extracted using the lower 16 bits, the width
-			gui::presentParameters.BackBufferWidth = LOWORD(longParameter);
-			// longParameter contains dimensions which are extracted using the higher 16 bits, the height
-			gui::presentParameters.BackBufferHeight = HIWORD(longParameter);
-			// this function refreshes the window with the new values / new win size
-			gui::ResetDevice();
-		}
-	} return 0;
-
-				// disable ALT to open / switch focus to menu using only the lower 4 bits 11111111 1111000 (within the window)
-	case WM_SYSCOMMAND: {
-		if ((wideParameter & 0xfff0) == SC_KEYMENU) { // sckeymenu is usually alt in most contexts
-			return 0;
-		}
-	} break;
-
-					  // WM_destroy is received when a window is being terminated (within the window)
-	case WM_DESTROY: {
-		PostQuitMessage(0); // tell the os that the program is exit, exit code 0
-	} return 0;
-
-				   //on left button click (within the window) 
-	case WM_LBUTTONDOWN: {
-		gui::position = MAKEPOINTS(longParameter); // set the click coords, extracted by makepoints macro, x,y
-	} return 0;
-
-					   // on mouse movement (within the window)
-	case WM_MOUSEMOVE: {
-		if (wideParameter == MK_LBUTTON) { // check if current mouse clicked is lbtn (held down)
-			const auto points = MAKEPOINTS(longParameter); // extract the coords of longParameter via makePoints (both x and y)
-			auto rect = ::RECT{}; // to hold the windows current pos and size
-
-			GetWindowRect(gui::window, &rect); // gets the window current pos and size and stores it in rect
-
-			// calc how much the mouse has dragged on screen for both x and y
-			rect.left += points.x - gui::position.x;
-			rect.top += points.y - gui::position.y;
-
-			// safety checks to enable moving overlay / window in a certain region
-			if (gui::position.x >= 0 && // within windows width
-				gui::position.x <= gui::WIDTH && // within windows width
-				gui::position.y >= 0 && gui::position.y <= 19) { // Y coords must be within  
-				SetWindowPos(
-					gui::window, // the window to be moved
-					HWND_TOPMOST, // make sure window is topmost, wanted behaviour for overlays
-					rect.left, // new left edge of window after move
-					rect.top, // new top edge
-					0, // height/width are NOT changed, so 0 appended
-					0, // height/width are NOT changed, so 0 appended
-					SWP_SHOWWINDOW | SWP_NOSIZE | SWP_NOZORDER // the window is shown, but not resized or reordered in Z order of windows
-				);
+		case WM_SIZE: {
+			// safety checks to see if device is initialised and available
+			// checks if the additional wide param window minimised is not true
+			if (gui::device && wideParameter != SIZE_MINIMIZED) {
+				// longParameter contains dimensions which are extracted using the lower 16 bits, the width
+				gui::presentParameters.BackBufferWidth = LOWORD(longParameter);
+				// longParameter contains dimensions which are extracted using the higher 16 bits, the height
+				gui::presentParameters.BackBufferHeight = HIWORD(longParameter);
+				// this function refreshes the window with the new values / new win size
+				gui::ResetDevice();
 			}
+		} return 0;
+		case WM_KEYDOWN: {
+			if (wideParameter == VK_INSERT) {
+				gui::ToggleVisibility();
+			}
+			break;
+		} return 0;
+		// disable ALT to open / switch focus to menu using only the lower 4 bits 11111111 1111000 (within the window)
+		case WM_SYSCOMMAND: {
+			if ((wideParameter & 0xfff0) == SC_KEYMENU) { // sckeymenu is usually alt in most contexts
+				return 0;
+			}
+		} break;
+		// WM_destroy is received when a window is being terminated (within the window)
+		case WM_DESTROY: {
+			PostQuitMessage(0); // tell the os that the program is exit, exit code 0
+		} return 0;
+		//on left button click (within the window) 
+		case WM_LBUTTONDOWN: {
+			gui::position = MAKEPOINTS(longParameter); // set the click coords, extracted by makepoints macro, x,y
+		} return 0;
+		// on mouse movement (within the window)
+		case WM_MOUSEMOVE: {
+			if (wideParameter == MK_LBUTTON) { // check if current mouse clicked is lbtn (held down)
+				const auto points = MAKEPOINTS(longParameter); // extract the coords of longParameter via makePoints (both x and y)
+				auto rect = ::RECT{}; // to hold the windows current pos and size
+
+				GetWindowRect(gui::window, &rect); // gets the window current pos and size and stores it in rect
+
+				// calc how much the mouse has dragged on screen for both x and y
+				rect.left += points.x - gui::position.x;
+				rect.top += points.y - gui::position.y;
+
+				// safety checks to enable moving overlay / window in a certain region
+				if (gui::position.x >= 0 && // within windows width
+					gui::position.x <= constvar::WIDTH && // within windows width
+					gui::position.y >= 0 && gui::position.y <= 19) { // Y coords must be within  
+					SetWindowPos(
+						gui::window, // the window to be moved
+						HWND_TOPMOST, // make sure window is topmost, wanted behaviour for overlays
+						rect.left, // new left edge of window after move
+						rect.top, // new top edge
+						0, // height/width are NOT changed, so 0 appended
+						0, // height/width are NOT changed, so 0 appended
+						SWP_SHOWWINDOW | SWP_NOSIZE | SWP_NOZORDER // the window is shown, but not resized or reordered in Z order of windows
+					);
+				}
+			}
+		} return 0;
 		}
-	} return 0;
-	}
 	return DefWindowProcW(window, message, wideParameter, longParameter); // fallback if none of the above conditions matched
 }
 
@@ -101,30 +105,32 @@ void gui::CreateHWindow() noexcept {
 	windowClass.cbClsExtra = 0; // no extra bytes for class
 	windowClass.cbWndExtra = 0; // no extra bytes for window
 	windowClass.hInstance = GetModuleHandleA(0); //fetches current instance of application
-	windowClass.hIcon = 0; //no icon
+	windowClass.hIcon = (HICON)LoadImage(NULL, constvar::PATH_TO_ICO, IMAGE_ICON, 0, 0, LR_LOADFROMFILE);
+	windowClass.hIconSm = (HICON)LoadImage(NULL, constvar::PATH_TO_ICO, IMAGE_ICON, 0, 0, LR_LOADFROMFILE);
 	windowClass.hCursor = 0; //no custom cursor
 	windowClass.hbrBackground = 0; // no custom background color
 	windowClass.lpszMenuName = 0; // no menu
-	windowClass.lpszClassName = L"class001"; //name of window class
+	windowClass.lpszClassName = "class001"; //name of window class
 	windowClass.hIconSm = 0; // no small icon
 
 	RegisterClassEx(&windowClass); // register the window class
 
 	gui::window = CreateWindowEx( // create the window itself based on the class above
-		0, // extended style none
-		L"class001", // window class name
-		L"title", // name of window / title
+		WS_EX_LAYERED, // extended style WS_EX_LAYERED allows for transparency toggle (SetLayeredWindowAttr)
+		"class001", // window class name
+		" ", // name of window / title
 		WS_POPUP, //ws_popup creates a borderless window
 		100,//x pos on screen
 		100,//y pos on screen
-		WIDTH,
-		HEIGHT,
+		constvar::WIDTH,
+		constvar::HEIGHT,
 		0, // no parent window
 		0, // no menu
 		windowClass.hInstance, //instance handle
 		0 // no additional data passed
 	);
 
+	SetLayeredWindowAttributes(gui::window, 0, 255, LWA_ALPHA); // code forces full alpha if using WS_EX_LAYERED 
 	ShowWindow(gui::window, SW_SHOWDEFAULT); //show the window
 	UpdateWindow(gui::window); //update the window
 
@@ -259,46 +265,22 @@ void gui::EndRender() noexcept {
 		ResetDevice();
 }
 
-void gui::ListenForWindowFocus() noexcept {
-	HWND foregroundWindow = GetForegroundWindow();
+void gui::ToggleVisibility() noexcept {
 
-	DWORD pid;
-	DWORD currentAppPID = GetCurrentProcessId(); 
+	// Get the current extended window style
+	LONG style = GetWindowLong(gui::window, GWL_EXSTYLE);
 
-	GetWindowThreadProcessId(foregroundWindow, &pid);
-
-
-	if (pid == currentAppPID) {
-		return; // horrid code and doesnt work. Will have to change approach
+	if (!gui::isVisible) {
+		// Make the window fully transparent (use LWA_ALPHA instead of LWA_COLORKEY)
+		SetLayeredWindowAttributes(gui::window, 0, 0, LWA_ALPHA); // Alpha set to 0 (fully transparent)
+	}
+	else {
+		// Show the window (set it back to normal)
+		SetLayeredWindowAttributes(gui::window, 0, 255, LWA_ALPHA); // Restore visibility with alpha set to 255 (fully opaque)
 	}
 
-	HANDLE hProcess = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, pid);
-
-	char exePath[MAX_PATH];
-	if (GetModuleFileNameExA(hProcess, NULL, exePath, MAX_PATH)) {
-		char* exeName = strrchr(exePath, '\\');
-		if (exeName != NULL) {
-			exeName++; 
-		}
-		else {
-			exeName = exePath; 
-		}
-
-		bool isGameWindowFocused = strcmp(exeName, constvar::GAME_EXECUTABLE_NAME) == 0;
-
-		if (isGameWindowFocused) {
-			ShowWindow(gui::window, SW_SHOW);
-			SetWindowPos(
-				gui::window,
-				HWND_TOPMOST,
-				0, 0, 0, 0,
-				SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE
-			);
-		}
-		else {
-			ShowWindow(gui::window, SW_MINIMIZE);
-		}
-	}
-
-	CloseHandle(hProcess);
+	// Toggle the visibility flag
+	gui::isVisible = !gui::isVisible;
 }
+
+
