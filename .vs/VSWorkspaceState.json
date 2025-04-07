@@ -1,0 +1,16 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\src",
+    "\\src\\core",
+    "\\src\\entry",
+    "\\src\\gui",
+    "\\src\\resources",
+    "\\src\\resources\\ico",
+    "\\src\\resources\\imgui",
+    "\\src\\src",
+    "\\src\\src\\Release"
+  ],
+  "SelectedNode": "\\src\\entry\\main.cpp",
+  "PreviewInSolutionExplorer": false
+}

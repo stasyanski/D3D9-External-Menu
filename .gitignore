@@ -1,3 +1,9 @@
+#manual
+src/src
+src/Release
+src/Debug
+src/.vs
+
 # Prerequisites
 *.d
 

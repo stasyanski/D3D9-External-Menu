@@ -11,7 +11,7 @@ void gui::Render() noexcept {
 	ImGui::SetNextWindowPos({ 0, 0 });
 	ImGui::SetNextWindowSize({ constvar::WIDTH, constvar::HEIGHT });
 	ImGui::Begin(
-		"S.T.A.L.K.E.R. 2 HoC - Multihack",
+		"D3D9 External Menu",
 		&isRunning,
 		ImGuiWindowFlags_NoResize |
 		ImGuiWindowFlags_NoSavedSettings |
@@ -28,10 +28,9 @@ void gui::Render() noexcept {
 	}
 	ImGui::Checkbox("Checkbox", &checkbox);
 	ImGui::Text("Press 'INSERT' to hide and bring up the menu.");
-	ImGui::Text("");
-	ImGui::Text("");
-	ImGui::Text("adrian is a big fat bitch");
-	ImGui::Text("and he is");
+	ImGui::Text("Text Example");
+	ImGui::Text("Text Example");
+	ImGui::Text("Text Example");
 
 	ImGui::End();
 }

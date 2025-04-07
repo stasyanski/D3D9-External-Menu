@@ -30,14 +30,14 @@
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -137,6 +137,7 @@
   <ItemGroup>
     <ClInclude Include="headers\constants.h" />
     <ClInclude Include="headers\gui.h" />
+    <ClInclude Include="headers\keyhook.h" />
     <ClInclude Include="resources\imgui\imconfig.h" />
     <ClInclude Include="resources\imgui\imgui.h" />
     <ClInclude Include="resources\imgui\imgui_impl_dx9.h" />
@@ -148,6 +149,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="core\gui.cpp" />
+    <ClCompile Include="core\keyhook.cpp" />
     <ClCompile Include="entry\main.cpp" />
     <ClCompile Include="gui\render.cpp" />
     <ClCompile Include="resources\imgui\imgui.cpp" />
